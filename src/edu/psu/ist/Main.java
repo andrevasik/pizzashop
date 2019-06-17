@@ -1,19 +1,25 @@
-package edu.psu.ist;
 /*
-Project: Lab 9
-Purpose Details: Pizza ordering application
-Course: IST 242
-Author: Joe Oakes
-Date Developed: 3/14/19
-Last Date Changed: 3/13/19
-Rev: 2
- */
+Project: Lab 9 Solo Work Pizza Shop Ordering Application Using IntelliJ Draft Version
+Purpose Details: To make an ordering program using inputs and outputs
+Course: IST 242 - 611
+Author: Andrej Vasik
+Date Developed: 6/9/2019
+Last Date Changed: 6/9/2019
+Revision: N/A
+*/
+
+package edu.psu.ist;
 
 import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Main {
-    int cCount = 1;
+    private static Order orderl;
+    private int cCount = 1;
+
+    private static Scanner scnr = new Scanner(System.in);                          //changed
+    private Order order;
+
     public static void main(String[] args) {
 
         Main main = new Main();
@@ -26,41 +32,69 @@ public class Main {
         final char CUST_PRNT = 'P';
         final char HELP_CODE = '?';
         char userAction;
+        int order_count = 1;
+        int transaction_count = 1;
         final String PROMPT_ACTION = "Add 'C'ustomer, 'P'rint Customer, List 'M'enu, Add 'O'rder, List 'T'ransaction or 'E'xit: ";
         ArrayList<Customer> cList = new ArrayList<>();
         ArrayList<Menu> mList = new ArrayList<>();
         ArrayList<Order> oList = new ArrayList<>();
         ArrayList<Transaction> tList = new ArrayList<>();
 
-        Order order1 = new Order(1);
-        Transaction trans1 = new Transaction(1, order1, PaymentType.cash);
 
-        Menu menu1 = new Menu(1, "Plain");
-        Menu menu2 = new Menu(2, "Meat");
-        Menu menu3 = new Menu(3, "Extra");
-        Menu menu4 = new Menu(4, "Veg");
+        Menu menu1 = new Menu(1, "Plain", 3.99);
+        Menu menu2 = new Menu(2, "Meat", 5.79);
+        Menu menu3 = new Menu(3, "Extra", 7.99);
+        Menu menu4 = new Menu(4, "Veg", 4.50);
 
         mList.add(menu1);
         mList.add(menu2);
         mList.add(menu3);
         mList.add(menu4);
 
-        oList.add(order1);
-        tList.add(trans1);
 
         userAction = getAction(PROMPT_ACTION);
 
         while (userAction != EXIT_CODE) {
-            switch(userAction) {
-                case CUST_CODE : cList.add(main.addCustomer());
+            switch (userAction) {
+                case CUST_CODE:
+                    cList.add(main.addCustomer());
                     break;
-                case CUST_PRNT : Customer.printCustomer(cList);
+                case CUST_PRNT:
+                    Customer.printCustomer(cList);
                     break;
-                case MENU_CODE : Menu.listMenu(mList);
+                case MENU_CODE:
+                    Menu.listMenu(mList);
                     break;
-                case ORDE_CODE : //Order.addOrders();
+                case ORDE_CODE: // Order.addOrders();                                                       CHANGED V
+                    boolean valid = false;
+                    if (cList.size() == 0) {
+                        System.out.println("No customers stored.");
+                        break;
+                    }
+                    Customer cust = null;
+                    while (!valid) {
+                        System.out.print("Enter customer ID : ");
+                        int cid = scnr.nextInt();
+                        for (Customer customer : cList) {
+                            if (customer.getCustomerId() == cid) {
+                                valid = true;
+                                cust = customer;
+                            } else {
+                                System.out.println("Invalid customer ID.");                               // CHANGED ^
+                            }
+                        }
+                    }
+                    ArrayList<Menu> orderItems = selectMenu(mList);
+                    Order order = new Order(order_count);
+                    order_count++;
+                    Transaction trans = new Transaction(transaction_count, order, PaymentType.unknown);
+                    tList.add(trans);
+                    transaction_count++;
+                    Order.addOrders(order, cust, orderItems, oList);
+                    oList.add(order);
                     break;
-                case TRAN_CODE : Transaction.listTransactions(tList);
+                case TRAN_CODE:
+                    Transaction.listTransactions(tList);
                     break;
             }
 
@@ -68,6 +102,41 @@ public class Main {
         }
     }
 
+
+    public static ArrayList<Menu> selectMenu(ArrayList<Menu> menus) {                                //changed
+        int flag;
+        ArrayList<Menu> orderItems = new ArrayList<>();
+        while (true) {
+            System.out.println("Select menu using ID, 0 = exit :)");
+            for (Menu menu : menus)
+                System.out.println(menu.getmenuId() + ") " + menu.getmenuItem());
+            flag = scnr.nextInt();
+            if (flag == 0)
+                break;
+            Menu item = menus.get(flag - 1);
+            boolean found = false;
+            for (Menu orderItem : orderItems) {
+                if (orderItem.getmenuId() == item.getmenuId()) {
+                    orderItem.setMenuQuantity(orderItem.getMenuQuantity() + 1);
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                item.setMenuQuantity(1);
+                orderItems.add(item);
+            }
+            printSelectedItems(orderItems);
+        }
+        return orderItems;
+    }
+
+    public static void printSelectedItems(ArrayList<Menu> menuItems) {
+        System.out.println("\nSelected Order Items: ");
+        for (Menu menu : menuItems) {
+            System.out.println(menu);
+        }
+    }
     public static char getAction(String prompt) {
         Scanner scnr = new Scanner(System.in);
         String answer = "";
@@ -77,13 +146,14 @@ public class Main {
         return firstChar;
     }
 
-    public Customer addCustomer(){
+    public Customer addCustomer() {
         Customer cust = new Customer(cCount++);
-        Scanner scnr = new Scanner(System.in);
+        //  Scanner scnr = new Scanner(System.in);                                                    //changed
         System.out.println("Please Enter your Name: ");
         cust.setCustomerName(scnr.nextLine());
         System.out.println("Please Enter your Phone: ");
         cust.setCustomerPhoneNumber(scnr.nextLine());
         return cust;
+
     }
 }

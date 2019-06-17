@@ -1,8 +1,18 @@
+/*
+Project: Lab 9 Solo Work Pizza Shop Ordering Application Using IntelliJ Draft Version
+Purpose Details: To make an ordering program using inputs and outputs
+Course: IST 242 - 611
+Author: Andrej Vasik
+Date Developed: 6/9/2019
+Last Date Changed: 6/16/2019
+Revision: Changed Main, Order, Menu, and Transaction
+*/
+
 package edu.psu.ist;
 
 import java.util.ArrayList;
 
-enum PaymentType {cash, credit}
+enum PaymentType {unknown, cash, credit}
 
 public class Transaction {
 
@@ -31,7 +41,7 @@ public class Transaction {
     public static void listTransactions(ArrayList<Transaction> tList){
         for (Transaction trans: tList){
             System.out.println("Transaction ID: " + trans.getTransactionId());
-            //System.out.println("Order:" + trans.getOrder());  //TODO: Print order
+            System.out.println("Order:" + trans.getOrder());  //TODO: Print order
             System.out.println("Payment Type: " + trans.getPaymentType());
         }
     }
